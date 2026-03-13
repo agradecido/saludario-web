@@ -35,6 +35,18 @@ function toFormDefaults(entry?: Entry): EntryFormValues {
   };
 }
 
+function formatQuantity(entry: Entry): string {
+  if (entry.quantity_value === null) {
+    return "Quantity not specified";
+  }
+
+  return entry.quantity_unit ? `${entry.quantity_value} ${entry.quantity_unit}` : String(entry.quantity_value);
+}
+
+function buildEditUrl(entryId: string, search: string): string {
+  return search ? `/entries/${entryId}/edit?${search}` : `/entries/${entryId}/edit`;
+}
+
 export function EntriesPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -185,9 +197,7 @@ export function EntriesPage() {
               </div>
 
               <p className="entry-meta">
-                {entry.quantity_value && entry.quantity_unit
-                  ? `${entry.quantity_value} ${entry.quantity_unit}`
-                  : "Quantity not specified"}
+                {formatQuantity(entry)}
               </p>
 
               <p className="entry-notes">{entry.notes || "No notes added."}</p>
@@ -195,7 +205,7 @@ export function EntriesPage() {
               <div className="entry-actions">
                 <Link
                   className="button-secondary"
-                  to={`/entries/${entry.id}/edit?${searchParams.toString()}`}
+                  to={buildEditUrl(entry.id, searchParams.toString())}
                 >
                   Edit
                 </Link>
@@ -453,4 +463,3 @@ function FiltersBar({
 function FieldError({ message }: { message?: string }) {
   return message ? <span className="field-error">{message}</span> : null;
 }
-
