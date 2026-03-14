@@ -4,6 +4,7 @@ export interface Entry {
   consumed_at: string;
   created_at: string;
   food_name: string;
+  ingredients: string[];
   id: string;
   meal_category_code: string;
   notes: string | null;
@@ -32,6 +33,7 @@ export interface EntriesFilters {
 export interface EntryPayload {
   consumed_at: string;
   food_name: string;
+  ingredients?: string[];
   meal_category_code: string;
   notes?: string;
   quantity_unit?: string;
@@ -41,6 +43,7 @@ export interface EntryPayload {
 export interface EntryUpdatePayload {
   consumed_at?: string;
   food_name?: string;
+  ingredients?: string[];
   meal_category_code?: string;
   notes?: string;
   quantity_unit?: string;
@@ -103,4 +106,3 @@ export async function deleteEntry(entryId: string): Promise<void> {
     method: "DELETE"
   });
 }
-

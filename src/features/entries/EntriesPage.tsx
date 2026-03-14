@@ -47,6 +47,10 @@ function buildEditUrl(entryId: string, search: string): string {
   return search ? `/entries/${entryId}/edit?${search}` : `/entries/${entryId}/edit`;
 }
 
+function buildIngredientsUrl(entryId: string, search: string): string {
+  return search ? `/entries/${entryId}/ingredients?${search}` : `/entries/${entryId}/ingredients`;
+}
+
 export function EntriesPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -210,6 +214,12 @@ export function EntriesPage() {
                 </p>
 
                 <p className="mt-1 text-sm text-(--color-text-secondary)">
+                  {entry.ingredients.length > 0
+                    ? `${entry.ingredients.length} ingredientes registrados`
+                    : "Ingredientes pendientes"}
+                </p>
+
+                <p className="mt-1 text-sm text-(--color-text-secondary)">
                   {entry.notes || "Sin notas."}
                 </p>
 
@@ -219,6 +229,12 @@ export function EntriesPage() {
                     to={buildEditUrl(entry.id, searchParams.toString())}
                   >
                     Editar
+                  </Link>
+                  <Link
+                    className="rounded-lg border border-(--color-border) px-3 py-1.5 text-xs font-medium text-(--color-text-secondary) transition-colors hover:border-(--color-brand-500) hover:text-(--color-brand-600)"
+                    to={buildIngredientsUrl(entry.id, searchParams.toString())}
+                  >
+                    Ingredientes
                   </Link>
                   <button
                     className="rounded-lg border border-(--color-border) px-3 py-1.5 text-xs font-medium text-(--color-text-secondary) transition-colors hover:border-(--color-error) hover:text-(--color-error) disabled:opacity-50"
