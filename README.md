@@ -20,7 +20,7 @@ Frontend web app for the Saludario API.
    npm install
    ```
 
-2. Start the backend API from `/home/javi/sites/saludario-api`.
+2. Start the backend API from repo docroot.
    The frontend expects the API at `http://localhost:3000`.
 
 3. Start the frontend:
