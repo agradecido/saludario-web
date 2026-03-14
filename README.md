@@ -2,6 +2,27 @@
 
 Frontend web app for the Saludario API.
 
+## Product context
+
+Saludario is a web-based food diary application focused on health.
+
+The goal of Saludario is to let users record what they eat, organize meals by category, and eventually help identify patterns between food intake and later symptoms or health issues.
+
+Core product scope:
+
+- User registration
+- User login
+- Personal meal history
+- Add food entries
+- Retrieve and browse entries
+- Edit and manage entries
+- Meal categorization:
+  - Breakfast
+  - Lunch
+  - Dinner
+  - Snack
+- Symptom tracking (events)
+
 ## Stack
 
 - React 19
@@ -38,16 +59,6 @@ Run the local check before committing:
 ```bash
 npm run check
 ```
-
-## Implemented flows
-
-- Register, login, logout, and session bootstrap
-- Categories fetch for entry forms and filters
-- Entry listing with cursor pagination
-- Entry creation
-- Entry editing
-- Entry deletion
-- Entry filtering by category and date range
 
 ## API behavior mirrored in the client
 
