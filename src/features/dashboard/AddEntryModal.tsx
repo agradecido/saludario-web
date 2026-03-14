@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { Modal } from "../../components/Modal";
@@ -45,6 +45,30 @@ export function AddEntryModal({ onClose, open }: AddEntryModalProps) {
             consumed_at: fromIsoToLocalInput(new Date().toISOString())
         }
     });
+    const foodName = form.watch("food_name");
+
+    useEffect(() => {
+        const normalizedFoodName = foodName.trim().toLocaleLowerCase();
+
+        if (!normalizedFoodName) {
+            return;
+        }
+
+        const matchingEntry = (entriesQuery.data?.data ?? []).find(
+            (entry) => entry.food_name.trim().toLocaleLowerCase() === normalizedFoodName
+        );
+
+        if (!matchingEntry) {
+            return;
+        }
+
+        form.setValue(
+            "quantity_value",
+            matchingEntry.quantity_value === null ? "" : String(matchingEntry.quantity_value),
+            { shouldDirty: true }
+        );
+        form.setValue("quantity_unit", matchingEntry.quantity_unit ?? "", { shouldDirty: true });
+    }, [entriesQuery.data?.data, foodName, form]);
 
     const mutation = useMutation({
         mutationFn: async (values: EntryFormValues) =>
