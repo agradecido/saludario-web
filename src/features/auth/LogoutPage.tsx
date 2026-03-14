@@ -1,23 +1,27 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useRevalidator } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { logoutUser } from "./auth";
 
 export function LogoutPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const revalidator = useRevalidator();
+  const hasStartedRef = useRef(false);
   const mutation = useMutation({
     mutationFn: logoutUser,
     onSettled: async () => {
       queryClient.removeQueries({ queryKey: ["auth", "session"] });
-      revalidator.revalidate();
       await navigate("/login", { replace: true });
     }
   });
 
   useEffect(() => {
+    if (hasStartedRef.current) {
+      return;
+    }
+
+    hasStartedRef.current = true;
     mutation.mutate();
   }, [mutation]);
 
