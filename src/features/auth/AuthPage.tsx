@@ -53,7 +53,7 @@ export function AuthPage({ mode }: AuthPageProps) {
       queryClient.removeQueries({ queryKey: ["auth", "session"] });
       await queryClient.fetchQuery(authSessionQueryOptions());
       revalidator.revalidate();
-      await navigate("/entries");
+      await navigate("/");
     },
     onError: (error) => {
       if (error instanceof ApiError && error.problem.errors) {
@@ -69,7 +69,7 @@ export function AuthPage({ mode }: AuthPageProps) {
       setFormError(
         getProblemMessage(
           error,
-          registerMode ? "Registration failed. Please try again." : "Login failed. Please try again."
+          registerMode ? "No se pudo crear la cuenta." : "No se pudo iniciar sesión."
         )
       );
     }
@@ -81,74 +81,102 @@ export function AuthPage({ mode }: AuthPageProps) {
     : undefined;
 
   return (
-    <section className="surface surface-form">
-      <p className="section-label">{registerMode ? "Register" : "Login"}</p>
-      <h2>{registerMode ? "Create your meal timeline" : "Continue your tracking session"}</h2>
-      <p className="surface-copy">
+    <div className="rounded-2xl bg-(--color-surface) p-6 shadow-sm">
+      <h2 className="text-xl font-bold">
+        {registerMode ? "Crear cuenta" : "Iniciar sesión"}
+      </h2>
+      <p className="mt-1 text-sm text-(--color-text-secondary)">
         {registerMode
-          ? "The backend establishes the session immediately after registration."
-          : "Sessions are cookie-based, so the browser stays aligned with the API after login."}
+          ? "Empieza a registrar tu alimentación."
+          : "Continúa donde lo dejaste."}
       </p>
 
       <form
-        className="stack-form"
+        className="mt-5 space-y-4"
         onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
       >
-        <label className="field">
-          <span>Email</span>
+        <Field
+          error={form.formState.errors.email?.message}
+          label="Email"
+        >
           <input
             autoComplete="email"
-            placeholder="user@example.com"
+            className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) placeholder:text-(--color-text-tertiary) focus:border-(--color-brand-500) focus:outline-none"
+            placeholder="tu@email.com"
             type="email"
             {...form.register("email")}
           />
-          <FieldError message={form.formState.errors.email?.message} />
-        </label>
+        </Field>
 
-        <label className="field">
-          <span>Password</span>
+        <Field
+          error={form.formState.errors.password?.message}
+          label="Contraseña"
+        >
           <input
             autoComplete={registerMode ? "new-password" : "current-password"}
-            placeholder={registerMode ? "At least 8 characters" : "Your password"}
+            className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) placeholder:text-(--color-text-tertiary) focus:border-(--color-brand-500) focus:outline-none"
+            placeholder={registerMode ? "Mínimo 8 caracteres" : "Tu contraseña"}
             type="password"
             {...form.register("password")}
           />
-          <FieldError message={form.formState.errors.password?.message} />
-        </label>
+        </Field>
 
         {registerMode ? (
-          <label className="field">
-            <span>Timezone</span>
+          <Field
+            error={timezoneError}
+            label="Zona horaria"
+          >
             <input
+              className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) placeholder:text-(--color-text-tertiary) focus:border-(--color-brand-500) focus:outline-none"
               placeholder="Europe/Madrid"
               type="text"
               {...form.register("timezone")}
             />
-            <FieldError message={timezoneError} />
-          </label>
+          </Field>
         ) : null}
 
-        {formError ? <p className="callout-error">{formError}</p> : null}
+        {formError ? (
+          <p className="rounded-xl bg-(--color-error-bg) px-3.5 py-2.5 text-sm text-(--color-error)">
+            {formError}
+          </p>
+        ) : null}
 
         <button
-          className="button-primary"
+          className="w-full rounded-xl bg-(--color-brand-600) py-2.5 text-sm font-semibold text-white transition-colors hover:bg-(--color-brand-700) disabled:opacity-50"
           disabled={isPending}
           type="submit"
         >
-          {isPending ? "Working..." : registerMode ? "Create account" : "Log in"}
+          {isPending ? "Procesando..." : registerMode ? "Crear cuenta" : "Entrar"}
         </button>
       </form>
 
-      <p className="inline-note">
-        {registerMode ? "Already have an account?" : "Need an account?"}{" "}
-        <Link to={registerMode ? "/login" : "/register"}>
-          {registerMode ? "Log in instead" : "Register here"}
+      <p className="mt-4 text-center text-sm text-(--color-text-secondary)">
+        {registerMode ? "¿Ya tienes cuenta?" : "¿No tienes cuenta?"}{" "}
+        <Link
+          className="font-medium text-(--color-brand-600) hover:text-(--color-brand-700)"
+          to={registerMode ? "/login" : "/register"}
+        >
+          {registerMode ? "Inicia sesión" : "Regístrate"}
         </Link>
       </p>
-    </section>
+    </div>
   );
 }
 
-function FieldError({ message }: { message?: string }) {
-  return message ? <span className="field-error">{message}</span> : null;
+function Field({
+  children,
+  error,
+  label
+}: {
+  children: React.ReactNode;
+  error?: string;
+  label: string;
+}) {
+  return (
+    <label className="block space-y-1.5">
+      <span className="text-sm font-medium text-(--color-text-secondary)">{label}</span>
+      {children}
+      {error ? <span className="text-xs text-(--color-error)">{error}</span> : null}
+    </label>
+  );
 }

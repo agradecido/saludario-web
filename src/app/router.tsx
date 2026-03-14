@@ -1,16 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import {
+  Link,
   NavLink,
   Outlet,
   createBrowserRouter,
   isRouteErrorResponse,
-  redirect,
   useLoaderData,
   useRouteError
 } from "react-router-dom";
 
 import { AuthPage } from "../features/auth/AuthPage";
 import { LogoutPage } from "../features/auth/LogoutPage";
+import { DashboardPage } from "../features/dashboard/DashboardPage";
 import {
   authSessionQueryOptions,
   guestLoader,
@@ -18,19 +19,6 @@ import {
   type SessionResponse
 } from "../features/auth/auth";
 import { EntriesPage } from "../features/entries/EntriesPage";
-
-function BrandBlock() {
-  return (
-    <header className="hero-panel">
-      <p className="eyebrow">Food diary for symptom-aware routines</p>
-      <h1>Saludario</h1>
-      <p className="hero-copy">
-        The frontend now mirrors the backend contract directly: cookie sessions, protected history,
-        category lookups, and entry CRUD from one workspace.
-      </p>
-    </header>
-  );
-}
 
 function AuthenticatedLayout() {
   const sessionData = useLoaderData() as SessionResponse;
@@ -41,48 +29,69 @@ function AuthenticatedLayout() {
   });
 
   return (
-    <div className="app-shell">
-      <BrandBlock />
+    <div className="flex min-h-dvh flex-col">
+      <header className="flex items-center justify-between border-b border-(--color-border) bg-(--color-surface) px-4 py-3 sm:px-6">
+        <NavLink
+          className="text-lg font-bold tracking-tight text-(--color-text)"
+          to="/"
+        >
+          Saludario
+        </NavLink>
 
-      <div className="content-stack">
-        <section className="surface surface-nav">
-          <div>
-            <p className="section-label">Active session</p>
-            <h2>{sessionData.user.email}</h2>
-            <p className="surface-copy">Timezone: {sessionData.user.timezone}</p>
-          </div>
+        <nav className="flex items-center gap-1">
+          <NavLink
+            className={({ isActive }) =>
+              `rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                isActive
+                  ? "bg-(--color-brand-600) text-white"
+                  : "text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-surface-hover)"
+              }`
+            }
+            to="/"
+            end
+          >
+            Inicio
+          </NavLink>
+          <NavLink
+            className={({ isActive }) =>
+              `rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                isActive
+                  ? "bg-(--color-brand-600) text-white"
+                  : "text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-surface-hover)"
+              }`
+            }
+            to="/entries"
+          >
+            Historial
+          </NavLink>
+          <Link
+            className="ml-2 rounded-lg px-3 py-1.5 text-sm text-(--color-text-tertiary) transition-colors hover:text-(--color-text) hover:bg-(--color-surface-hover)"
+            to="/logout"
+          >
+            Salir
+          </Link>
+        </nav>
+      </header>
 
-          <nav className="nav-row">
-            <NavLink
-              className={({ isActive }) => (isActive ? "nav-link nav-link-active" : "nav-link")}
-              to="/entries"
-            >
-              Entries
-            </NavLink>
-            <NavLink
-              className={({ isActive }) => (isActive ? "nav-link nav-link-active" : "nav-link")}
-              to="/logout"
-            >
-              Logout
-            </NavLink>
-          </nav>
-        </section>
-
-        <main className="content-panel">
-          <Outlet />
-        </main>
-      </div>
+      <main className="flex-1">
+        <Outlet />
+      </main>
     </div>
   );
 }
 
 function PublicLayout() {
   return (
-    <div className="app-shell">
-      <BrandBlock />
-      <main className="content-panel">
+    <div className="flex min-h-dvh items-center justify-center bg-(--color-surface-alt) px-4">
+      <div className="w-full max-w-md">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold tracking-tight">Saludario</h1>
+          <p className="mt-1 text-sm text-(--color-text-secondary)">
+            Tu diario de alimentación y bienestar
+          </p>
+        </div>
         <Outlet />
-      </main>
+      </div>
     </div>
   );
 }
@@ -91,22 +100,27 @@ function RouteErrorBoundary() {
   const error = useRouteError();
   const title = isRouteErrorResponse(error)
     ? `${error.status} ${error.statusText}`
-    : "Application error";
+    : "Error de aplicación";
   const detail =
     isRouteErrorResponse(error) && typeof error.data === "string"
       ? error.data
-      : "The current route could not be rendered.";
+      : "No se ha podido cargar esta página.";
 
   return (
-    <div className="app-shell">
-      <BrandBlock />
-      <main className="content-panel">
-        <section className="surface surface-form">
-          <p className="section-label">Error</p>
-          <h2>{title}</h2>
-          <p className="surface-copy">{detail}</p>
-        </section>
-      </main>
+    <div className="flex min-h-dvh items-center justify-center px-4">
+      <div className="w-full max-w-sm rounded-2xl bg-(--color-surface) p-8 text-center shadow-lg">
+        <p className="mb-2 text-xs font-semibold tracking-widest text-(--color-error) uppercase">
+          Error
+        </p>
+        <h2 className="text-xl font-bold">{title}</h2>
+        <p className="mt-2 text-sm text-(--color-text-secondary)">{detail}</p>
+        <Link
+          className="mt-6 inline-block rounded-xl bg-(--color-brand-600) px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-(--color-brand-700)"
+          to="/"
+        >
+          Volver al inicio
+        </Link>
+      </div>
     </div>
   );
 }
@@ -117,13 +131,13 @@ export const router = createBrowserRouter([
     errorElement: <RouteErrorBoundary />,
     children: [
       {
-        index: true,
-        loader: async () => redirect("/entries")
-      },
-      {
         loader: protectedLoader,
         element: <AuthenticatedLayout />,
         children: [
+          {
+            index: true,
+            element: <DashboardPage />
+          },
           {
             path: "entries",
             element: <EntriesPage />
@@ -151,7 +165,7 @@ export const router = createBrowserRouter([
       {
         path: "logout",
         loader: protectedLoader,
-        element: <PublicLayout />,
+        element: <AuthenticatedLayout />,
         children: [
           {
             index: true,

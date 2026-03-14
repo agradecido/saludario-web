@@ -37,7 +37,7 @@ function toFormDefaults(entry?: Entry): EntryFormValues {
 
 function formatQuantity(entry: Entry): string {
   if (entry.quantity_value === null) {
-    return "Quantity not specified";
+    return "Sin cantidad";
   }
 
   return entry.quantity_unit ? `${entry.quantity_value} ${entry.quantity_unit}` : String(entry.quantity_value);
@@ -136,7 +136,7 @@ export function EntriesPage() {
       setFormError(
         getProblemMessage(
           error,
-          entryId ? "Entry update failed. Please try again." : "Entry creation failed. Please try again."
+          entryId ? "No se pudo actualizar." : "No se pudo crear."
         )
       );
     }
@@ -154,201 +154,240 @@ export function EntriesPage() {
 
   const entries = entriesQuery.data?.pages.flatMap((page) => page.data) ?? [];
   const pageError = entriesQuery.error
-    ? getProblemMessage(entriesQuery.error, "Could not load entries.")
+    ? getProblemMessage(entriesQuery.error, "No se pudieron cargar las entradas.")
     : null;
   const detailError = detailQuery.error
-    ? getProblemMessage(detailQuery.error, "Could not load the selected entry.")
+    ? getProblemMessage(detailQuery.error, "No se pudo cargar la entrada.")
     : null;
   const deletingId = deleteMutation.variables;
 
   return (
-    <div className="dashboard-grid">
-      <section className="surface stack-surface">
-        <div className="section-heading">
+    <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
+      <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
+        {/* Entry list */}
+        <section className="space-y-4">
           <div>
-            <p className="section-label">Journal</p>
-            <h2>Meal timeline</h2>
-          </div>
-          <p className="surface-copy">Cursor-based history, category filters, and direct CRUD over the API.</p>
-        </div>
-
-        <FiltersBar
-          categoryFilter={categoryFilter}
-          fromFilter={fromFilter}
-          toFilter={toFilter}
-          categories={categories}
-          onChange={(next) => setSearchParams(next)}
-        />
-
-        {pageError ? <p className="callout-error">{pageError}</p> : null}
-
-        <div className="entry-list">
-          {entries.map((entry) => (
-            <article
-              className="entry-card"
-              key={entry.id}
-            >
-              <div className="entry-card-top">
-                <div>
-                  <p className="entry-category">{entry.meal_category_code}</p>
-                  <h3>{entry.food_name}</h3>
-                </div>
-                <span className="entry-time">{formatTimelineDate(entry.consumed_at)}</span>
-              </div>
-
-              <p className="entry-meta">
-                {formatQuantity(entry)}
-              </p>
-
-              <p className="entry-notes">{entry.notes || "No notes added."}</p>
-
-              <div className="entry-actions">
-                <Link
-                  className="button-secondary"
-                  to={buildEditUrl(entry.id, searchParams.toString())}
-                >
-                  Edit
-                </Link>
-                <button
-                  className="button-ghost"
-                  disabled={deleteMutation.isPending}
-                  onClick={() => {
-                    if (window.confirm("Delete this entry?")) {
-                      deleteMutation.mutate(entry.id);
-                    }
-                  }}
-                  type="button"
-                >
-                  {deleteMutation.isPending && deletingId === entry.id ? "Deleting..." : "Delete"}
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
-
-        {!entriesQuery.isLoading && entries.length === 0 ? (
-          <p className="empty-state">No entries match the current filters.</p>
-        ) : null}
-
-        {entriesQuery.hasNextPage ? (
-          <button
-            className="button-secondary button-load-more"
-            disabled={entriesQuery.isFetchingNextPage}
-            onClick={() => entriesQuery.fetchNextPage()}
-            type="button"
-          >
-            {entriesQuery.isFetchingNextPage ? "Loading..." : "Load more"}
-          </button>
-        ) : null}
-      </section>
-
-      <section className="surface stack-surface">
-        <div className="section-heading">
-          <div>
-            <p className="section-label">{entryId ? "Edit" : "Create"}</p>
-            <h2>{entryId ? "Update entry" : "Add a new entry"}</h2>
-          </div>
-          {entryId ? (
-            <Link
-              className="button-ghost"
-              to={`/entries${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
-            >
-              Cancel
-            </Link>
-          ) : null}
-        </div>
-
-        {detailError ? <p className="callout-error">{detailError}</p> : null}
-
-        <form
-          className="stack-form"
-          onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
-        >
-          <label className="field">
-            <span>Meal category</span>
-            <select {...form.register("meal_category_code")}>
-              <option value="">Select category</option>
-              {categories.map((category) => (
-                <option
-                  key={category.code}
-                  value={category.code}
-                >
-                  {category.label}
-                </option>
-              ))}
-            </select>
-            <FieldError message={form.formState.errors.meal_category_code?.message} />
-          </label>
-
-          <label className="field">
-            <span>Food name</span>
-            <input
-              placeholder="Grilled chicken"
-              type="text"
-              {...form.register("food_name")}
-            />
-            <FieldError message={form.formState.errors.food_name?.message} />
-          </label>
-
-          <div className="field-grid">
-            <label className="field">
-              <span>Quantity</span>
-              <input
-                min="0"
-                placeholder="200"
-                step="0.1"
-                type="number"
-                {...form.register("quantity_value")}
-              />
-              <FieldError message={form.formState.errors.quantity_value?.message} />
-            </label>
-
-            <label className="field">
-              <span>Unit</span>
-              <input
-                placeholder="g"
-                type="text"
-                {...form.register("quantity_unit")}
-              />
-              <FieldError message={form.formState.errors.quantity_unit?.message} />
-            </label>
+            <h2 className="text-xl font-bold">Historial</h2>
+            <p className="mt-0.5 text-sm text-(--color-text-secondary)">
+              Tu registro de comidas y bebidas.
+            </p>
           </div>
 
-          <label className="field">
-            <span>Consumed at</span>
-            <input
-              type="datetime-local"
-              {...form.register("consumed_at")}
-            />
-            <FieldError message={form.formState.errors.consumed_at?.message} />
-          </label>
+          <FiltersBar
+            categoryFilter={categoryFilter}
+            fromFilter={fromFilter}
+            toFilter={toFilter}
+            categories={categories}
+            onChange={(next) => setSearchParams(next)}
+          />
 
-          <label className="field">
-            <span>Notes</span>
-            <textarea
-              placeholder="Homemade, restaurant, symptoms, context..."
-              rows={5}
-              {...form.register("notes")}
-            />
-            <FieldError message={form.formState.errors.notes?.message} />
-          </label>
-
-          {formError ? <p className="callout-error">{formError}</p> : null}
-          {deleteMutation.error ? (
-            <p className="callout-error">
-              {getProblemMessage(deleteMutation.error, "Entry deletion failed. Please try again.")}
+          {pageError ? (
+            <p className="rounded-xl bg-(--color-error-bg) px-3.5 py-2.5 text-sm text-(--color-error)">
+              {pageError}
             </p>
           ) : null}
 
-          <button
-            className="button-primary"
-            disabled={mutation.isPending || (Boolean(entryId) && detailQuery.isLoading)}
-            type="submit"
+          <div className="space-y-3">
+            {entries.map((entry) => (
+              <article
+                className="rounded-xl border border-(--color-border) bg-(--color-surface) p-4"
+                key={entry.id}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <span className="text-xs font-semibold tracking-wide text-(--color-brand-600) uppercase">
+                      {entry.meal_category_code}
+                    </span>
+                    <h3 className="font-semibold">{entry.food_name}</h3>
+                  </div>
+                  <span className="shrink-0 text-xs text-(--color-text-tertiary)">
+                    {formatTimelineDate(entry.consumed_at)}
+                  </span>
+                </div>
+
+                <p className="mt-2 text-sm text-(--color-text-secondary)">
+                  {formatQuantity(entry)}
+                </p>
+
+                <p className="mt-1 text-sm text-(--color-text-secondary)">
+                  {entry.notes || "Sin notas."}
+                </p>
+
+                <div className="mt-3 flex gap-2">
+                  <Link
+                    className="rounded-lg border border-(--color-border) px-3 py-1.5 text-xs font-medium text-(--color-text-secondary) transition-colors hover:border-(--color-brand-500) hover:text-(--color-brand-600)"
+                    to={buildEditUrl(entry.id, searchParams.toString())}
+                  >
+                    Editar
+                  </Link>
+                  <button
+                    className="rounded-lg border border-(--color-border) px-3 py-1.5 text-xs font-medium text-(--color-text-secondary) transition-colors hover:border-(--color-error) hover:text-(--color-error) disabled:opacity-50"
+                    disabled={deleteMutation.isPending}
+                    onClick={() => {
+                      if (window.confirm("¿Eliminar esta entrada?")) {
+                        deleteMutation.mutate(entry.id);
+                      }
+                    }}
+                    type="button"
+                  >
+                    {deleteMutation.isPending && deletingId === entry.id ? "Eliminando..." : "Eliminar"}
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          {!entriesQuery.isLoading && entries.length === 0 ? (
+            <p className="py-8 text-center text-sm text-(--color-text-tertiary)">
+              No hay entradas con estos filtros.
+            </p>
+          ) : null}
+
+          {entriesQuery.hasNextPage ? (
+            <button
+              className="w-full rounded-xl border border-(--color-border) py-2.5 text-sm font-medium text-(--color-text-secondary) transition-colors hover:border-(--color-brand-500) hover:text-(--color-brand-600) disabled:opacity-50"
+              disabled={entriesQuery.isFetchingNextPage}
+              onClick={() => entriesQuery.fetchNextPage()}
+              type="button"
+            >
+              {entriesQuery.isFetchingNextPage ? "Cargando..." : "Cargar más"}
+            </button>
+          ) : null}
+        </section>
+
+        {/* Entry form */}
+        <section className="space-y-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-xl font-bold">
+                {entryId ? "Editar entrada" : "Nueva entrada"}
+              </h2>
+            </div>
+            {entryId ? (
+              <Link
+                className="rounded-lg border border-(--color-border) px-3 py-1.5 text-xs font-medium text-(--color-text-secondary) transition-colors hover:text-(--color-text)"
+                to={`/entries${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
+              >
+                Cancelar
+              </Link>
+            ) : null}
+          </div>
+
+          {detailError ? (
+            <p className="rounded-xl bg-(--color-error-bg) px-3.5 py-2.5 text-sm text-(--color-error)">
+              {detailError}
+            </p>
+          ) : null}
+
+          <form
+            className="space-y-4"
+            onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
           >
-            {mutation.isPending ? "Saving..." : entryId ? "Save changes" : "Create entry"}
-          </button>
-        </form>
-      </section>
+            <Field
+              error={form.formState.errors.meal_category_code?.message}
+              label="Categoría"
+            >
+              <select
+                className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) focus:border-(--color-brand-500) focus:outline-none"
+                {...form.register("meal_category_code")}
+              >
+                <option value="">Seleccionar</option>
+                {categories.map((category) => (
+                  <option
+                    key={category.code}
+                    value={category.code}
+                  >
+                    {category.label}
+                  </option>
+                ))}
+              </select>
+            </Field>
+
+            <Field
+              error={form.formState.errors.food_name?.message}
+              label="Nombre"
+            >
+              <input
+                className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) placeholder:text-(--color-text-tertiary) focus:border-(--color-brand-500) focus:outline-none"
+                placeholder="Pollo a la plancha"
+                type="text"
+                {...form.register("food_name")}
+              />
+            </Field>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Field
+                error={form.formState.errors.quantity_value?.message}
+                label="Cantidad"
+              >
+                <input
+                  className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) placeholder:text-(--color-text-tertiary) focus:border-(--color-brand-500) focus:outline-none"
+                  min="0"
+                  placeholder="200"
+                  step="0.1"
+                  type="number"
+                  {...form.register("quantity_value")}
+                />
+              </Field>
+
+              <Field
+                error={form.formState.errors.quantity_unit?.message}
+                label="Unidad"
+              >
+                <input
+                  className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) placeholder:text-(--color-text-tertiary) focus:border-(--color-brand-500) focus:outline-none"
+                  placeholder="g"
+                  type="text"
+                  {...form.register("quantity_unit")}
+                />
+              </Field>
+            </div>
+
+            <Field
+              error={form.formState.errors.consumed_at?.message}
+              label="Consumido"
+            >
+              <input
+                className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) focus:border-(--color-brand-500) focus:outline-none"
+                type="datetime-local"
+                {...form.register("consumed_at")}
+              />
+            </Field>
+
+            <Field
+              error={form.formState.errors.notes?.message}
+              label="Notas"
+            >
+              <textarea
+                className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) placeholder:text-(--color-text-tertiary) focus:border-(--color-brand-500) focus:outline-none"
+                placeholder="Casero, restaurante, contexto..."
+                rows={3}
+                {...form.register("notes")}
+              />
+            </Field>
+
+            {formError ? (
+              <p className="rounded-xl bg-(--color-error-bg) px-3.5 py-2.5 text-sm text-(--color-error)">
+                {formError}
+              </p>
+            ) : null}
+
+            {deleteMutation.error ? (
+              <p className="rounded-xl bg-(--color-error-bg) px-3.5 py-2.5 text-sm text-(--color-error)">
+                {getProblemMessage(deleteMutation.error, "No se pudo eliminar la entrada.")}
+              </p>
+            ) : null}
+
+            <button
+              className="w-full rounded-xl bg-(--color-brand-600) py-2.5 text-sm font-semibold text-white transition-colors hover:bg-(--color-brand-700) disabled:opacity-50"
+              disabled={mutation.isPending || (Boolean(entryId) && detailQuery.isLoading)}
+              type="submit"
+            >
+              {mutation.isPending ? "Guardando..." : entryId ? "Guardar cambios" : "Crear entrada"}
+            </button>
+          </form>
+        </section>
+      </div>
     </div>
   );
 }
@@ -380,7 +419,7 @@ function FiltersBar({
 
   return (
     <form
-      className="filters-bar"
+      className="grid gap-3 sm:grid-cols-4 sm:items-end"
       onSubmit={(event) => {
         event.preventDefault();
         const next = new URLSearchParams();
@@ -400,13 +439,13 @@ function FiltersBar({
         onChange(next);
       }}
     >
-      <label className="field">
-        <span>Category</span>
+      <Field label="Categoría">
         <select
+          className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) focus:border-(--color-brand-500) focus:outline-none"
           onChange={(event) => setDraftCategory(event.target.value)}
           value={draftCategory}
         >
-          <option value="">All</option>
+          <option value="">Todas</option>
           {categories.map((category) => (
             <option
               key={category.code}
@@ -416,35 +455,35 @@ function FiltersBar({
             </option>
           ))}
         </select>
-      </label>
+      </Field>
 
-      <label className="field">
-        <span>From</span>
+      <Field label="Desde">
         <input
+          className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) focus:border-(--color-brand-500) focus:outline-none"
           onChange={(event) => setDraftFrom(event.target.value)}
           type="datetime-local"
           value={draftFrom}
         />
-      </label>
+      </Field>
 
-      <label className="field">
-        <span>To</span>
+      <Field label="Hasta">
         <input
+          className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) focus:border-(--color-brand-500) focus:outline-none"
           onChange={(event) => setDraftTo(event.target.value)}
           type="datetime-local"
           value={draftTo}
         />
-      </label>
+      </Field>
 
-      <div className="filters-actions">
+      <div className="flex gap-2">
         <button
-          className="button-secondary"
+          className="flex-1 rounded-xl border border-(--color-border) py-2.5 text-sm font-medium text-(--color-text-secondary) transition-colors hover:border-(--color-brand-500) hover:text-(--color-brand-600)"
           type="submit"
         >
-          Apply filters
+          Filtrar
         </button>
         <button
-          className="button-ghost"
+          className="rounded-xl border border-(--color-border) px-3 py-2.5 text-sm text-(--color-text-tertiary) transition-colors hover:text-(--color-text)"
           onClick={() => {
             setDraftCategory("");
             setDraftFrom("");
@@ -453,13 +492,27 @@ function FiltersBar({
           }}
           type="button"
         >
-          Clear
+          Limpiar
         </button>
       </div>
     </form>
   );
 }
 
-function FieldError({ message }: { message?: string }) {
-  return message ? <span className="field-error">{message}</span> : null;
+function Field({
+  children,
+  error,
+  label
+}: {
+  children: React.ReactNode;
+  error?: string;
+  label: string;
+}) {
+  return (
+    <label className="block space-y-1.5">
+      <span className="text-sm font-medium text-(--color-text-secondary)">{label}</span>
+      {children}
+      {error ? <span className="text-xs text-(--color-error)">{error}</span> : null}
+    </label>
+  );
 }

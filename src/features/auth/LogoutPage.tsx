@@ -22,11 +22,11 @@ export function LogoutPage() {
   }, [mutation]);
 
   return (
-    <section className="surface surface-form">
-      <p className="section-label">Logout</p>
-      <h2>Clearing the active session</h2>
-      <p className="surface-copy">The app is revoking the current cookie-based session.</p>
-    </section>
+    <div className="flex min-h-[60dvh] items-center justify-center">
+      <div className="text-center">
+        <h2 className="text-lg font-semibold">Cerrando sesión...</h2>
+        <p className="mt-1 text-sm text-(--color-text-secondary)">Un momento.</p>
+      </div>
+    </div>
   );
 }
-

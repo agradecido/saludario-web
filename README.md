@@ -1,37 +1,55 @@
 # Saludario Web
 
-Frontend web app for the Saludario API.
+Minimal web app for tracking food intake and symptoms. Built with React, TypeScript, Tailwind CSS v4, and Vite.
 
 ## Product context
 
-Saludario is a web-based food diary application focused on health.
+Saludario is a health-focused food diary that lets users record what they eat, organize meals by category, and log symptoms to help identify patterns between food intake and how they feel.
 
-The goal of Saludario is to let users record what they eat, organize meals by category, and eventually help identify patterns between food intake and later symptoms or health issues.
+Core features:
 
-Core product scope:
-
-- User registration
-- User login
-- Personal meal history
-- Add food entries
-- Retrieve and browse entries
-- Edit and manage entries
-- Meal categorization:
-  - Breakfast
-  - Lunch
-  - Dinner
-  - Snack
-- Symptom tracking (events)
+- **Dashboard** — Clean landing screen after login with two CTAs:
+  - **Add food or drink** (prominent) — opens a quick-add modal
+  - **Log a symptom** (secondary) — opens a symptom form modal
+- **Food entries** — Full CRUD with cursor-paginated history, category filters, and date range queries
+- **Symptom tracking** — Record symptoms with a severity scale (1–5), timestamp, and optional notes
+- **Authentication** — Cookie-based sessions with login, registration, and logout
+- **Meal categories** — Breakfast, Lunch, Dinner, Snack
+- **Light/dark mode** — Automatic via `prefers-color-scheme`
 
 ## Stack
 
 - React 19
 - TypeScript
-- Vite
-- React Router
-- TanStack Query
-- React Hook Form
-- Zod
+- Vite 7
+- Tailwind CSS 4
+- React Router 7
+- TanStack Query 5
+- React Hook Form 7
+- Zod 4
+
+## Project structure
+
+```
+src/
+├── app/
+│   ├── query-client.ts          # TanStack Query client config
+│   └── router.tsx               # Routes, layouts, error boundary
+├── components/
+│   └── Modal.tsx                # Reusable modal (bottom sheet on mobile)
+├── features/
+│   ├── auth/                    # Login, register, logout, session
+│   ├── categories/              # Meal category lookup
+│   ├── dashboard/               # Dashboard page + add-entry/add-symptom modals
+│   ├── entries/                 # Food entry CRUD + paginated history
+│   └── symptoms/                # Symptom event API layer + schema
+├── lib/
+│   ├── api.ts                   # Fetch wrapper, ApiError, RFC 7807 handling
+│   └── datetime.ts              # Timezone and date formatting helpers
+├── styles/
+│   └── index.css                # Tailwind import + theme tokens
+└── main.tsx                     # App entry point
+```
 
 ## Local development
 
@@ -60,9 +78,23 @@ Run the local check before committing:
 npm run check
 ```
 
-## API behavior mirrored in the client
+## API endpoints used
 
-- All requests use `credentials: "include"`
-- `POST`, `PATCH`, and `DELETE` requests send `X-Requested-With: XMLHttpRequest`
-- Protected routes bootstrap from `GET /api/v1/auth/session`
+| Feature    | Method | Path                                      |
+| ---------- | ------ | ----------------------------------------- |
+| Session    | GET    | `/api/v1/auth/session`                    |
+| Login      | POST   | `/api/v1/auth/login`                      |
+| Register   | POST   | `/api/v1/auth/register`                   |
+| Logout     | POST   | `/api/v1/auth/logout`                     |
+| Categories | GET    | `/api/v1/categories`                      |
+| Entries    | GET    | `/api/v1/entries`                          |
+| Entry      | GET    | `/api/v1/entries/:id`                      |
+| Create     | POST   | `/api/v1/entries`                          |
+| Update     | PATCH  | `/api/v1/entries/:id`                      |
+| Delete     | DELETE | `/api/v1/entries/:id`                      |
+| Symptoms   | GET    | `/api/v1/internal/symptoms/events`         |
+| Symptom    | GET    | `/api/v1/internal/symptoms/events/:id`     |
+| Create     | POST   | `/api/v1/internal/symptoms/events`         |
+
+All requests use `credentials: "include"`. State-changing requests send `X-Requested-With: XMLHttpRequest`. Protected routes bootstrap from `GET /api/v1/auth/session`.
 
