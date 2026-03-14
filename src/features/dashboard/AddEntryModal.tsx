@@ -7,7 +7,7 @@ import { Modal } from "../../components/Modal";
 import { ApiError, getProblemMessage } from "../../lib/api";
 import { fromIsoToLocalInput, fromLocalInputToIso } from "../../lib/datetime";
 import { categoriesQueryOptions, fallbackCategories } from "../categories/categories";
-import { createEntry } from "../entries/entries";
+import { createEntry, listEntries } from "../entries/entries";
 import { entryFormSchema, type EntryFormValues } from "../entries/entries.schemas";
 
 interface AddEntryModalProps {
@@ -21,6 +21,18 @@ export function AddEntryModal({ onClose, open }: AddEntryModalProps) {
 
     const categoriesQuery = useQuery(categoriesQueryOptions());
     const categories = categoriesQuery.data?.data ?? fallbackCategories;
+    const entriesQuery = useQuery({
+        queryKey: ["entries", "suggestions"],
+        queryFn: () => listEntries({ limit: 100 }),
+        staleTime: 60_000
+    });
+    const knownFoodNames = Array.from(
+        new Set(
+            (entriesQuery.data?.data ?? [])
+                .map((entry) => entry.food_name.trim())
+                .filter(Boolean)
+        )
+    );
 
     const form = useForm<EntryFormValues>({
         resolver: zodResolver(entryFormSchema),
@@ -81,11 +93,20 @@ export function AddEntryModal({ onClose, open }: AddEntryModalProps) {
                 >
                     <input
                         autoFocus
+                        list="food-name-suggestions"
                         className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) placeholder:text-(--color-text-tertiary) focus:border-(--color-brand-500) focus:outline-none"
                         placeholder="Café con leche, ensalada..."
                         type="text"
                         {...form.register("food_name")}
                     />
+                    <datalist id="food-name-suggestions">
+                        {knownFoodNames.map((foodName) => (
+                            <option
+                                key={foodName}
+                                value={foodName}
+                            />
+                        ))}
+                    </datalist>
                 </Field>
 
                 <Field
