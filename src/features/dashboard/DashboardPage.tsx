@@ -17,7 +17,7 @@ export function DashboardPage() {
             </div>
 
             <button
-                className="w-full max-w-xs rounded-2xl bg-(--color-brand-600) px-6 py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-(--color-brand-700) hover:shadow-xl active:scale-[0.98]"
+                className="w-full max-w-xs cursor-pointer rounded-2xl bg-(--color-brand-600) px-6 py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-(--color-brand-700) hover:shadow-xl active:scale-[0.98]"
                 onClick={() => setEntryModalOpen(true)}
                 type="button"
             >
@@ -40,7 +40,7 @@ export function DashboardPage() {
             </button>
 
             <button
-                className="rounded-xl border border-(--color-border) bg-(--color-surface) px-5 py-2.5 text-sm font-medium text-(--color-text-secondary) transition-colors hover:border-(--color-brand-500) hover:text-(--color-brand-600)"
+                className="cursor-pointer rounded-xl border border-(--color-border) bg-(--color-surface) px-5 py-2.5 text-sm font-medium text-(--color-text-secondary) transition-colors hover:border-(--color-brand-500) hover:text-(--color-brand-600)"
                 onClick={() => setSymptomModalOpen(true)}
                 type="button"
             >
