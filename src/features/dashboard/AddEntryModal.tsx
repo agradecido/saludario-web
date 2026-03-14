@@ -15,6 +15,38 @@ interface AddEntryModalProps {
     open: boolean;
 }
 
+const QUICK_CONSUMED_AT_PRESETS = [
+    {
+        label: "Ahora",
+        getValue: () => new Date()
+    },
+    {
+        label: "Hace 30 min",
+        getValue: () => new Date(Date.now() - 30 * 60_000)
+    },
+    {
+        label: "Ayer",
+        getValue: () => new Date(Date.now() - 24 * 60 * 60_000)
+    }
+] as const;
+
+function splitLocalDateTime(localValue: string) {
+    const [date = "", time = ""] = localValue.split("T");
+
+    return {
+        date,
+        time: time.slice(0, 5)
+    };
+}
+
+function mergeLocalDateTime(date: string, time: string): string {
+    if (!date || !time) {
+        return "";
+    }
+
+    return `${date}T${time}`;
+}
+
 export function AddEntryModal({ onClose, open }: AddEntryModalProps) {
     const queryClient = useQueryClient();
     const [formError, setFormError] = useState<string | null>(null);
@@ -46,6 +78,8 @@ export function AddEntryModal({ onClose, open }: AddEntryModalProps) {
         }
     });
     const foodName = form.watch("food_name");
+    const consumedAt = form.watch("consumed_at");
+    const { date: consumedDate, time: consumedTime } = splitLocalDateTime(consumedAt);
 
     useEffect(() => {
         const normalizedFoodName = foodName.trim().toLocaleLowerCase();
@@ -185,11 +219,51 @@ export function AddEntryModal({ onClose, open }: AddEntryModalProps) {
                     error={form.formState.errors.consumed_at?.message}
                     label="¿Cuándo?"
                 >
-                    <input
-                        className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) focus:border-(--color-brand-500) focus:outline-none"
-                        type="datetime-local"
-                        {...form.register("consumed_at")}
-                    />
+                    <div className="space-y-3">
+                        <div className="flex flex-wrap gap-2">
+                            {QUICK_CONSUMED_AT_PRESETS.map((preset) => (
+                                <button
+                                    className="cursor-pointer rounded-full border border-(--color-border) bg-(--color-surface) px-3 py-1.5 text-xs font-medium text-(--color-text-secondary) transition-colors hover:border-(--color-brand-500) hover:text-(--color-brand-600)"
+                                    key={preset.label}
+                                    onClick={() => form.setValue("consumed_at", fromIsoToLocalInput(preset.getValue().toISOString()), { shouldDirty: true, shouldValidate: true })}
+                                    type="button"
+                                >
+                                    {preset.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <input
+                                className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) focus:border-(--color-brand-500) focus:outline-none"
+                                type="date"
+                                value={consumedDate}
+                                onChange={(event) =>
+                                    form.setValue(
+                                        "consumed_at",
+                                        mergeLocalDateTime(event.target.value, consumedTime),
+                                        { shouldDirty: true, shouldValidate: true }
+                                    )}
+                            />
+                            <input
+                                className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) focus:border-(--color-brand-500) focus:outline-none"
+                                step="300"
+                                type="time"
+                                value={consumedTime}
+                                onChange={(event) =>
+                                    form.setValue(
+                                        "consumed_at",
+                                        mergeLocalDateTime(consumedDate, event.target.value),
+                                        { shouldDirty: true, shouldValidate: true }
+                                    )}
+                            />
+                        </div>
+
+                        <input
+                            type="hidden"
+                            {...form.register("consumed_at")}
+                        />
+                    </div>
                 </Field>
 
                 <Field
