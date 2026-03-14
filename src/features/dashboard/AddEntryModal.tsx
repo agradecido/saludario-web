@@ -69,7 +69,7 @@ export function AddEntryModal({ onClose, open }: AddEntryModalProps) {
     const form = useForm<EntryFormValues>({
         resolver: zodResolver(entryFormSchema),
         defaultValues: {
-            meal_category_code: "",
+            meal_category_code: "snack",
             food_name: "",
             quantity_value: "",
             quantity_unit: "",
