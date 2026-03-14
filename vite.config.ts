@@ -5,7 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    allowedHosts: ["localhost", "hp-laptop.monkey-muskellunge.ts.net"],
+    allowedHosts: ["localhost", "saludario-web.monkey-muskellunge.ts.net", "ai-ubuntu-server.monkey-muskellunge.ts.net", "192.168.0.162"],
     proxy: {
       "/api": {
         target: "http://localhost:3000",
@@ -14,4 +14,3 @@ export default defineConfig({
     }
   }
 });
-
