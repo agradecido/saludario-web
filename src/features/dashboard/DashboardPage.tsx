@@ -4,9 +4,24 @@ import { AddEntryModal } from "./AddEntryModal";
 import { AddSymptomModal } from "./AddSymptomModal";
 import { FabMenu } from "./FabMenu";
 
+type FoodCategory = "breakfast" | "lunch" | "dinner" | "snack";
+type BodyRegion = "head" | "chest" | "abdomen" | "back" | "extremities";
+
 export function DashboardPage() {
     const [entryModalOpen, setEntryModalOpen] = useState(false);
     const [symptomModalOpen, setSymptomModalOpen] = useState(false);
+
+    function handleOpenEntryModal(category?: FoodCategory) {
+        // TODO: Pass category context to AddEntryModal when it supports it
+        console.log("Opening entry modal with category:", category);
+        setEntryModalOpen(true);
+    }
+
+    function handleOpenSymptomModal(region?: BodyRegion) {
+        // TODO: Pass region context to AddSymptomModal when it supports it
+        console.log("Opening symptom modal with region:", region);
+        setSymptomModalOpen(true);
+    }
 
     return (
         <>
@@ -20,8 +35,8 @@ export function DashboardPage() {
             </div>
 
             <FabMenu
-                onAddEntry={() => setEntryModalOpen(true)}
-                onAddSymptom={() => setSymptomModalOpen(true)}
+                onAddEntry={handleOpenEntryModal}
+                onAddSymptom={handleOpenSymptomModal}
             />
 
             <AddEntryModal
