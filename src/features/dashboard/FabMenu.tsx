@@ -22,10 +22,6 @@ export function FabMenu({ onAddEntry, onAddSymptom }: FabMenuProps) {
         setIsOpen(false);
     }
 
-    function handleClose() {
-        setIsOpen(false);
-    }
-
     return (
         <div
             aria-expanded={isOpen}
@@ -36,7 +32,7 @@ export function FabMenu({ onAddEntry, onAddSymptom }: FabMenuProps) {
             {isOpen && (
                 <div
                     className="fixed inset-0 -z-10 bg-black/20 backdrop-blur-sm transition-opacity duration-300"
-                    onClick={handleClose}
+                    onClick={handleToggle}
                 />
             )}
 
@@ -46,41 +42,50 @@ export function FabMenu({ onAddEntry, onAddSymptom }: FabMenuProps) {
                 <button
                     aria-label="Añadir nueva entrada de comida o bebida"
                     className={`absolute bottom-0 left-0 flex h-14 w-14 items-center justify-center rounded-full border-2 border-(--color-border) bg-(--color-surface) text-(--color-brand-600) shadow-lg transition-all duration-300 hover:scale-110 hover:border-(--color-brand-500) hover:shadow-xl ${isOpen
-                            ? "scale-100 -translate-x-20 -translate-y-20 opacity-100 delay-150"
-                            : "scale-0 translate-x-0 translate-y-0 opacity-0"
+                        ? "scale-100 -translate-x-20 -translate-y-20 opacity-100 delay-150"
+                        : "scale-0 translate-x-0 translate-y-0 opacity-0"
                         }`}
                     onClick={handleAddEntry}
                     style={{
                         transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
                     }}
                     type="button"
+                ><svg
+                    className="h-6 w-6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
                 >
-                    <svg
-                        className="h-6 w-6"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        viewBox="0 0 24 24"
-                    >
+                        <circle cx="12" cy="12" r="10" />
                         <path
-                            d="M12 8v13m0-13V6a2 2 0 012-2h.01M12 8H9.5a2 2 0 00-2 2v.5"
+                            d="M8 14s1.5 2 4 2 4-2 4-2"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                         />
-                        <path
-                            d="M16 14a4 4 0 11-8 0 4 4 0 018 0z"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
+                        <path d="M9 9h.01M15 9h.01" strokeLinecap="round" />
                     </svg>
                 </button>
 
-                {/* Add Symptom button (top-center position) */}
+                {/* Add Entry label */}
+                <span
+                    className={`absolute bottom-0 left-0 -translate-x-20 translate-y-4 whitespace-nowrap rounded-full bg-(--color-surface) px-3 py-1 text-xs font-medium text-(--color-text-secondary) shadow-md transition-all duration-300 ${isOpen
+                        ? "scale-100 -translate-x-20 -translate-y-16 opacity-100 delay-150"
+                        : "scale-0 translate-x-0 translate-y-0 opacity-0"
+                        }`}
+                    style={{
+                        transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+                    }}
+                >
+                    Comida
+                </span>
+
+                {/* Add Symptom button (top-right position) */}
                 <button
                     aria-label="Registrar un nuevo síntoma"
                     className={`absolute bottom-0 left-0 flex h-14 w-14 items-center justify-center rounded-full border-2 border-(--color-border) bg-(--color-surface) text-(--color-brand-600) shadow-lg transition-all duration-300 hover:scale-110 hover:border-(--color-brand-500) hover:shadow-xl ${isOpen
-                            ? "scale-100 -translate-y-24 opacity-100 delay-100"
-                            : "scale-0 translate-y-0 opacity-0"
+                        ? "scale-100 translate-x-20 -translate-y-20 opacity-100 delay-150"
+                        : "scale-0 translate-x-0 translate-y-0 opacity-0"
                         }`}
                     onClick={handleAddSymptom}
                     style={{
@@ -90,46 +95,25 @@ export function FabMenu({ onAddEntry, onAddSymptom }: FabMenuProps) {
                 >
                     <svg
                         className="h-6 w-6"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2}
+                        fill="currentColor"
                         viewBox="0 0 24 24"
                     >
-                        <path
-                            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
+                        <path d="M9 2h6v7h7v6h-7v7H9v-7H2V9h7V2z" />
                     </svg>
                 </button>
 
-                {/* Close button (top-right position) */}
-                <button
-                    aria-label="Cerrar menú de acciones"
-                    className={`absolute bottom-0 left-0 flex h-14 w-14 items-center justify-center rounded-full border-2 border-(--color-border) bg-(--color-surface) text-(--color-text-secondary) shadow-lg transition-all duration-300 hover:scale-110 hover:border-(--color-border) hover:text-(--color-text-primary) hover:shadow-xl ${isOpen
-                            ? "scale-100 translate-x-20 -translate-y-20 opacity-100 delay-75"
-                            : "scale-0 translate-x-0 translate-y-0 opacity-0"
+                {/* Add Symptom label */}
+                <span
+                    className={`absolute bottom-0 left-0 translate-x-20 translate-y-4 whitespace-nowrap rounded-full bg-(--color-surface) px-3 py-1 text-xs font-medium text-(--color-text-secondary) shadow-md transition-all duration-300 ${isOpen
+                        ? "scale-100 translate-x-20 -translate-y-16 opacity-100 delay-150"
+                        : "scale-0 translate-x-0 translate-y-0 opacity-0"
                         }`}
-                    onClick={handleClose}
                     style={{
                         transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
                     }}
-                    type="button"
                 >
-                    <svg
-                        className="h-6 w-6"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            d="M6 18L18 6M6 6l12 12"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
-                </button>
+                    Síntoma
+                </span>
 
                 {/* Main FAB button */}
                 <button
