@@ -18,6 +18,7 @@ import {
   protectedLoader,
   type SessionResponse
 } from "../features/auth/auth";
+import { EntryIngredientsPage } from "../features/entries/EntryIngredientsPage";
 import { EntriesPage } from "../features/entries/EntriesPage";
 
 function AuthenticatedLayout() {
@@ -145,6 +146,10 @@ export const router = createBrowserRouter([
           {
             path: "entries/:entryId/edit",
             element: <EntriesPage />
+          },
+          {
+            path: "entries/:entryId/ingredients",
+            element: <EntryIngredientsPage />
           }
         ]
       },
