@@ -5,7 +5,6 @@ import { AddSymptomModal } from "./AddSymptomModal";
 import { FabMenu } from "./FabMenu";
 
 type FoodCategory = "breakfast" | "lunch" | "dinner" | "snack";
-type BodyRegion = "head" | "chest" | "abdomen" | "back" | "extremities";
 
 export function DashboardPage() {
     const [entryModalOpen, setEntryModalOpen] = useState(false);
@@ -17,9 +16,7 @@ export function DashboardPage() {
         setEntryModalOpen(true);
     }
 
-    function handleOpenSymptomModal(region?: BodyRegion) {
-        // TODO: Pass region context to AddSymptomModal when it supports it
-        console.log("Opening symptom modal with region:", region);
+    function handleOpenSymptomModal() {
         setSymptomModalOpen(true);
     }
 

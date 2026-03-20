@@ -3,11 +3,9 @@ import { type ReactElement, useState } from "react";
 
 import { categoriesQueryOptions, fallbackCategories } from "../categories/categories";
 
-type MenuState = "closed" | "main" | "food" | "symptom";
+type MenuState = "closed" | "main" | "food";
 
 type FoodCategory = "breakfast" | "lunch" | "dinner" | "snack";
-
-type BodyRegion = "head" | "chest" | "abdomen" | "back" | "extremities";
 
 // Spanish labels and icons for food categories
 const FOOD_CATEGORY_META: Record<
@@ -101,7 +99,7 @@ const FOOD_CATEGORY_META: Record<
 
 interface FabMenuProps {
     onAddEntry: (category?: FoodCategory) => void;
-    onAddSymptom: (region?: BodyRegion) => void;
+    onAddSymptom: () => void;
 }
 
 export function FabMenu({ onAddEntry, onAddSymptom }: FabMenuProps) {
@@ -120,7 +118,8 @@ export function FabMenu({ onAddEntry, onAddSymptom }: FabMenuProps) {
     }
 
     function handleSymptomClick() {
-        setMenuState("symptom");
+        onAddSymptom();
+        setMenuState("closed");
     }
 
     function handleBack() {
@@ -129,11 +128,6 @@ export function FabMenu({ onAddEntry, onAddSymptom }: FabMenuProps) {
 
     function handleFoodCategorySelect(category: FoodCategory) {
         onAddEntry(category);
-        setMenuState("closed");
-    }
-
-    function handleBodyRegionSelect(region: BodyRegion) {
-        onAddSymptom(region);
         setMenuState("closed");
     }
 
@@ -303,205 +297,7 @@ export function FabMenu({ onAddEntry, onAddSymptom }: FabMenuProps) {
                     </>
                 )}
 
-                {/* LEVEL 2: Symptom body regions submenu */}
-                {menuState === "symptom" && (
-                    <>
-                        {/* Espalda (lower-left) */}
-                        <div
-                            className="absolute left-1/2 top-1/2 flex flex-col items-center gap-1.5"
-                            style={{ transform: "translate(calc(-50% - 112px), calc(-50% - 72px))" }}
-                        >
-                            <button
-                                aria-label="Espalda"
-                                className="flex h-12 w-12 scale-100 items-center justify-center rounded-full border-2 border-(--color-border) bg-(--color-surface) text-(--color-brand-600) opacity-100 shadow-lg transition-all delay-[200ms] duration-300 hover:scale-110 hover:border-(--color-brand-500) hover:shadow-xl"
-                                onClick={() => handleBodyRegionSelect("back")}
-                                style={{
-                                    transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-                                }}
-                                type="button"
-                            >
-                                <svg
-                                    className="h-5 w-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth={2}
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        d="M12 3C8 3 4 7 4 11c0 3 1.5 5.5 4 7v3h8v-3c2.5-1.5 4-4 4-7 0-4-3.5-8-8-8z"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                </svg>
-                            </button>
-                            <span className="scale-100 whitespace-nowrap rounded-full bg-(--color-surface) px-2 py-0.5 text-[10px] font-medium text-(--color-text-secondary) opacity-100 shadow-md transition-all delay-[200ms] duration-300">
-                                Espalda
-                            </span>
-                        </div>
 
-                        {/* Pecho (upper-left) */}
-                        <div
-                            className="absolute left-1/2 top-1/2 flex flex-col items-center gap-1.5"
-                            style={{ transform: "translate(calc(-50% - 64px), calc(-50% - 116px))" }}
-                        >
-                            <button
-                                aria-label="Pecho"
-                                className="flex h-12 w-12 scale-100 items-center justify-center rounded-full border-2 border-(--color-border) bg-(--color-surface) text-(--color-brand-600) opacity-100 shadow-lg transition-all delay-150 duration-300 hover:scale-110 hover:border-(--color-brand-500) hover:shadow-xl"
-                                onClick={() => handleBodyRegionSelect("chest")}
-                                style={{
-                                    transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-                                }}
-                                type="button"
-                            >
-                                <svg
-                                    className="h-5 w-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth={2}
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                </svg>
-                            </button>
-                            <span className="scale-100 whitespace-nowrap rounded-full bg-(--color-surface) px-2 py-0.5 text-[10px] font-medium text-(--color-text-secondary) opacity-100 shadow-md transition-all delay-150 duration-300">
-                                Pecho
-                            </span>
-                        </div>
-
-                        {/* Cabeza (top-center) */}
-                        <div
-                            className="absolute left-1/2 top-1/2 flex flex-col items-center gap-1.5"
-                            style={{ transform: "translate(-50%, calc(-50% - 136px))" }}
-                        >
-                            <button
-                                aria-label="Cabeza"
-                                className="flex h-12 w-12 scale-100 items-center justify-center rounded-full border-2 border-(--color-border) bg-(--color-surface) text-(--color-brand-600) opacity-100 shadow-lg transition-all delay-[200ms] duration-300 hover:scale-110 hover:border-(--color-brand-500) hover:shadow-xl"
-                                onClick={() => handleBodyRegionSelect("head")}
-                                style={{
-                                    transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-                                }}
-                                type="button"
-                            >
-                                <svg
-                                    className="h-5 w-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth={2}
-                                    viewBox="0 0 24 24"
-                                >
-                                    <circle cx="12" cy="8" r="5" />
-                                    <path
-                                        d="M20 21a8 8 0 10-16 0"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                </svg>
-                            </button>
-                            <span className="scale-100 whitespace-nowrap rounded-full bg-(--color-surface) px-2 py-0.5 text-[10px] font-medium text-(--color-text-secondary) opacity-100 shadow-md transition-all delay-[200ms] duration-300">
-                                Cabeza
-                            </span>
-                        </div>
-
-                        {/* Abdomen (upper-right) */}
-                        <div
-                            className="absolute left-1/2 top-1/2 flex flex-col items-center gap-1.5"
-                            style={{ transform: "translate(calc(-50% + 64px), calc(-50% - 116px))" }}
-                        >
-                            <button
-                                aria-label="Abdomen"
-                                className="flex h-12 w-12 scale-100 items-center justify-center rounded-full border-2 border-(--color-border) bg-(--color-surface) text-(--color-brand-600) opacity-100 shadow-lg transition-all delay-100 duration-300 hover:scale-110 hover:border-(--color-brand-500) hover:shadow-xl"
-                                onClick={() => handleBodyRegionSelect("abdomen")}
-                                style={{
-                                    transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-                                }}
-                                type="button"
-                            >
-                                <svg
-                                    className="h-5 w-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth={2}
-                                    viewBox="0 0 24 24"
-                                >
-                                    <circle cx="12" cy="12" r="10" />
-                                    <circle cx="12" cy="12" r="6" />
-                                    <circle cx="12" cy="12" r="2" />
-                                </svg>
-                            </button>
-                            <span className="scale-100 whitespace-nowrap rounded-full bg-(--color-surface) px-2 py-0.5 text-[10px] font-medium text-(--color-text-secondary) opacity-100 shadow-md transition-all delay-100 duration-300">
-                                Abdomen
-                            </span>
-                        </div>
-
-                        {/* Extremidades (lower-right) */}
-                        <div
-                            className="absolute left-1/2 top-1/2 flex flex-col items-center gap-1.5"
-                            style={{ transform: "translate(calc(-50% + 112px), calc(-50% - 72px))" }}
-                        >
-                            <button
-                                aria-label="Extremidades"
-                                className="flex h-12 w-12 scale-100 items-center justify-center rounded-full border-2 border-(--color-border) bg-(--color-surface) text-(--color-brand-600) opacity-100 shadow-lg transition-all delay-100 duration-300 hover:scale-110 hover:border-(--color-brand-500) hover:shadow-xl"
-                                onClick={() => handleBodyRegionSelect("extremities")}
-                                style={{
-                                    transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-                                }}
-                                type="button"
-                            >
-                                <svg
-                                    className="h-5 w-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth={2}
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        d="M18 10h4v4h-4zM2 10h4v4H2zM10 2h4v4h-4zM10 18h4v4h-4z"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                    <path
-                                        d="M10 10h4v4h-4z"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                </svg>
-                            </button>
-                            <span className="scale-100 whitespace-nowrap rounded-full bg-(--color-surface) px-2 py-0.5 text-[10px] font-medium text-(--color-text-secondary) opacity-100 shadow-md transition-all delay-100 duration-300">
-                                Extremidades
-                            </span>
-                        </div>
-
-                        {/* Back button */}
-                        <button
-                            aria-label="Volver"
-                            className="absolute left-1/2 top-1/2 flex h-10 w-10 scale-100 items-center justify-center rounded-full border-2 border-(--color-border) bg-(--color-surface) text-(--color-text-secondary) opacity-100 shadow-md transition-all delay-75 duration-300 hover:scale-110 hover:text-(--color-text-primary)"
-                            onClick={handleBack}
-                            style={{
-                                transform: "translate(-50%, calc(-50% - 68px))",
-                                transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-                            }}
-                            type="button"
-                        >
-                            <svg
-                                className="h-4 w-4"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                            </svg>
-                        </button>
-                    </>
-                )}
 
                 {/* Main FAB button */}
                 <button
