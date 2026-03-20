@@ -9,11 +9,11 @@ type BodyRegion = "head" | "chest" | "abdomen" | "back" | "extremities";
 
 export function DashboardPage() {
     const [entryModalOpen, setEntryModalOpen] = useState(false);
+    const [entryCategory, setEntryCategory] = useState<FoodCategory | undefined>(undefined);
     const [symptomModalOpen, setSymptomModalOpen] = useState(false);
 
     function handleOpenEntryModal(category?: FoodCategory) {
-        // TODO: Pass category context to AddEntryModal when it supports it
-        console.log("Opening entry modal with category:", category);
+        setEntryCategory(category);
         setEntryModalOpen(true);
     }
 
@@ -40,6 +40,7 @@ export function DashboardPage() {
             />
 
             <AddEntryModal
+                initialCategory={entryCategory}
                 onClose={() => setEntryModalOpen(false)}
                 open={entryModalOpen}
             />

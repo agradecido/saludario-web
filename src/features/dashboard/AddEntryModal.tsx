@@ -6,11 +6,12 @@ import { useForm } from "react-hook-form";
 import { Modal } from "../../components/Modal";
 import { ApiError, getProblemMessage } from "../../lib/api";
 import { fromIsoToLocalInput, fromLocalInputToIso } from "../../lib/datetime";
-import { categoriesQueryOptions, fallbackCategories } from "../categories/categories";
+import { categoriesQueryOptions, fallbackCategories, type Category } from "../categories/categories";
 import { createEntry, listEntries } from "../entries/entries";
 import { entryFormSchema, type EntryFormValues } from "../entries/entries.schemas";
 
 interface AddEntryModalProps {
+    initialCategory?: Category["code"];
     onClose: () => void;
     open: boolean;
 }
@@ -47,7 +48,7 @@ function mergeLocalDateTime(date: string, time: string): string {
     return `${date}T${time}`;
 }
 
-export function AddEntryModal({ onClose, open }: AddEntryModalProps) {
+export function AddEntryModal({ initialCategory, onClose, open }: AddEntryModalProps) {
     const queryClient = useQueryClient();
     const [formError, setFormError] = useState<string | null>(null);
 
@@ -69,7 +70,7 @@ export function AddEntryModal({ onClose, open }: AddEntryModalProps) {
     const form = useForm<EntryFormValues>({
         resolver: zodResolver(entryFormSchema),
         defaultValues: {
-            meal_category_code: "snack",
+            meal_category_code: initialCategory ?? "snack",
             food_name: "",
             quantity_value: "",
             quantity_unit: "",
@@ -80,6 +81,12 @@ export function AddEntryModal({ onClose, open }: AddEntryModalProps) {
     const foodName = form.watch("food_name");
     const consumedAt = form.watch("consumed_at");
     const { date: consumedDate, time: consumedTime } = splitLocalDateTime(consumedAt);
+
+    useEffect(() => {
+        if (open) {
+            form.setValue("meal_category_code", initialCategory ?? "snack");
+        }
+    }, [open, initialCategory, form]);
 
     useEffect(() => {
         const normalizedFoodName = foodName.trim().toLocaleLowerCase();
