@@ -8,10 +8,9 @@ Saludario is a health-focused food diary that lets users record what they eat, o
 
 Core features:
 
-- **Dashboard** — Clean landing screen after login with a bottom-anchored floating action button (FAB) that expands upward into a multilevel menu:
-  - Level 1: **Add food or drink** / **Log a symptom**
-  - Level 2: Food categories (fetched from API: Desayuno, Comida, Cena, Snack) or body regions for symptoms
-  - Each selection opens the corresponding modal with context pre-filled
+- **Dashboard** — Clean landing screen after login with a bottom-anchored floating action button (FAB) that expands upward into a two-level menu:
+  - Level 1: **Add food or drink** / **Log a symptom** — tapping the symptom button opens the modal directly
+  - Level 2 (food only): Food categories (fetched from API: Desayuno, Comida, Cena, Snack) — the selected category is pre-filled in the form
 - **Food entries** — Full CRUD with cursor-paginated history, category filters, and date range queries
 - **Symptom tracking** — Record symptoms with a severity scale (1–5), timestamp, and optional notes
 - **Authentication** — Cookie-based sessions with login, registration, and logout
