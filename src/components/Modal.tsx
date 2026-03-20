@@ -1,3 +1,4 @@
+import { X } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
 
 interface ModalProps {
@@ -47,19 +48,7 @@ export function Modal({ children, onClose, open, title }: ModalProps) {
                         onClick={onClose}
                         type="button"
                     >
-                        <svg
-                            className="h-5 w-5"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth={2}
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                d="M6 18L18 6M6 6l12 12"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            />
-                        </svg>
+                        <X className="h-5 w-5" />
                     </button>
                 </div>
                 {children}
