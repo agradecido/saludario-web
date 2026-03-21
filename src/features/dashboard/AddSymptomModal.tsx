@@ -23,6 +23,7 @@ export function AddSymptomModal({ onClose, open }: AddSymptomModalProps) {
     const form = useForm<SymptomFormValues>({
         resolver: zodResolver(symptomFormSchema),
         defaultValues: {
+            type: "symptom",
             symptom_code: "",
             severity: 1,
             occurred_at: fromIsoToLocalInput(new Date().toISOString()),

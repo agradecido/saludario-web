@@ -70,6 +70,7 @@ export function AddEntryModal({ initialCategory, onClose, open }: AddEntryModalP
     const form = useForm<EntryFormValues>({
         resolver: zodResolver(entryFormSchema),
         defaultValues: {
+            type: "food",
             meal_category_code: initialCategory ?? "snack",
             food_name: "",
             quantity_value: "",
