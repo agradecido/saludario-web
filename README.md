@@ -42,6 +42,7 @@ src/
 │   ├── categories/              # Meal category lookup
 │   ├── dashboard/               # Dashboard page + add-entry/add-symptom modals
 │   ├── entries/                 # Food entry CRUD + paginated history
+│   ├── events/                  # Shared event domain: AppEvent union, combined Zod schema
 │   └── symptoms/                # Symptom event API layer + schema
 ├── lib/
 │   ├── api.ts                   # Fetch wrapper, ApiError, RFC 7807 handling

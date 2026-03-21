@@ -1,26 +1,28 @@
 import { apiRequest } from "../../lib/api";
+import type { FoodEvent } from "../events/events";
 
-export interface Entry {
-  consumed_at: string;
-  created_at: string;
-  food_name: string;
-  ingredients: string[];
-  id: string;
-  meal_category_code: string;
-  notes: string | null;
-  quantity_unit: string | null;
-  quantity_value: number | null;
-  updated_at: string;
-  user_id: string;
-}
+// Re-export for backward compatibility with code that references Entry.
+export type { FoodEvent as Entry };
 
 export interface EntriesResponse {
-  data: Entry[];
+  data: FoodEvent[];
   page: {
     has_more: boolean;
     limit: number;
     next_cursor: string | null;
   };
+}
+
+// Raw shape returned by the API before the type discriminator is added.
+type RawFoodEvent = Omit<FoodEvent, "type">;
+
+function toFoodEvent(raw: RawFoodEvent): FoodEvent {
+  return { ...raw, type: "food" };
+}
+
+interface RawEntriesResponse {
+  data: RawFoodEvent[];
+  page: EntriesResponse["page"];
 }
 
 export interface EntriesFilters {
@@ -80,25 +82,29 @@ function buildQueryString(filters: EntriesFilters & { cursor?: string }): string
 export async function listEntries(
   filters: EntriesFilters & { cursor?: string } = {}
 ): Promise<EntriesResponse> {
-  return apiRequest<EntriesResponse>(`/api/v1/entries${buildQueryString(filters)}`);
+  const raw = await apiRequest<RawEntriesResponse>(`/api/v1/entries${buildQueryString(filters)}`);
+  return { ...raw, data: raw.data.map(toFoodEvent) };
 }
 
-export async function getEntry(entryId: string): Promise<Entry> {
-  return apiRequest<Entry>(`/api/v1/entries/${entryId}`);
+export async function getEntry(entryId: string): Promise<FoodEvent> {
+  const raw = await apiRequest<RawFoodEvent>(`/api/v1/entries/${entryId}`);
+  return toFoodEvent(raw);
 }
 
-export async function createEntry(payload: EntryPayload): Promise<Entry> {
-  return apiRequest<Entry>("/api/v1/entries", {
+export async function createEntry(payload: EntryPayload): Promise<FoodEvent> {
+  const raw = await apiRequest<RawFoodEvent>("/api/v1/entries", {
     method: "POST",
     body: payload
   });
+  return toFoodEvent(raw);
 }
 
-export async function updateEntry(entryId: string, payload: EntryUpdatePayload): Promise<Entry> {
-  return apiRequest<Entry>(`/api/v1/entries/${entryId}`, {
+export async function updateEntry(entryId: string, payload: EntryUpdatePayload): Promise<FoodEvent> {
+  const raw = await apiRequest<RawFoodEvent>(`/api/v1/entries/${entryId}`, {
     method: "PATCH",
     body: payload
   });
+  return toFoodEvent(raw);
 }
 
 export async function deleteEntry(entryId: string): Promise<void> {

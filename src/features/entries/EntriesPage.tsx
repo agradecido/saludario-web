@@ -26,6 +26,7 @@ const PAGE_LIMIT = 20;
 
 function toFormDefaults(entry?: Entry): EntryFormValues {
   return {
+    type: "food",
     meal_category_code: entry?.meal_category_code ?? "",
     food_name: entry?.food_name ?? "",
     quantity_value: entry?.quantity_value ? String(entry.quantity_value) : "",

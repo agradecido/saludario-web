@@ -29,12 +29,17 @@ src/features/<feature>/
 
 Each feature owns its API layer, validation schemas, and UI. Shared utilities live in `src/lib/`, reusable components in `src/components/`.
 
+The `src/features/events/` directory holds the shared event domain:
+- `events.ts` — `BaseEvent`, `FoodEvent`, `SymptomEvent`, `AppEvent` discriminated union, `AppEventsPage`
+- `events.schemas.ts` — `appEventFormSchema` combining sub-schemas via `z.discriminatedUnion('type', [...])`
+
 ### Layers and responsibilities
 
 | Layer | Location | Responsibility |
 |-------|----------|----------------|
 | API client | `src/lib/api.ts` | Fetch wrapper, `ApiError`, RFC 7807 parsing |
 | Date utilities | `src/lib/datetime.ts` | Timezone-aware formatting and conversion |
+| Event domain | `src/features/events/` | `AppEvent` union, `AppEventsPage`, `appEventFormSchema` |
 | Feature API | `src/features/*/*.ts` | Domain interfaces, API functions, query options |
 | Validation | `src/features/*/*.schemas.ts` | Zod schemas for form data |
 | UI | `src/features/*/*.tsx` | React components (pages, modals, forms) |
@@ -50,6 +55,7 @@ Each feature owns its API layer, validation schemas, and UI. Shared utilities li
 - **Auth:** Cookie-based sessions. Protected routes use `protectedLoader`; guest routes use `guestLoader`. Session is cached via TanStack Query.
 - **Routing:** React Router with `createBrowserRouter`, loader-based auth guards, and `<Outlet />` layouts.
 - **Styling:** Tailwind CSS 4 utility classes with CSS custom property theme tokens defined in `src/styles/index.css`. Light/dark mode via `prefers-color-scheme`. Use semantic token names (`--color-surface`, `--color-text-secondary`, `--color-brand-600`) instead of raw Tailwind colors.
+- **Event model:** All user-recorded data is typed as `AppEvent = FoodEvent | SymptomEvent`. API functions in `entries.ts` and `symptoms.ts` attach the `type` discriminator at the response boundary. Use `getEventTimestamp(event)` to resolve the canonical timestamp across event types.
 
 ## Build and Test
 

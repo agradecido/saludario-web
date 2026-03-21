@@ -23,6 +23,7 @@ export function AddSymptomModal({ onClose, open }: AddSymptomModalProps) {
     const form = useForm<SymptomFormValues>({
         resolver: zodResolver(symptomFormSchema),
         defaultValues: {
+            type: "symptom",
             symptom_code: "",
             severity: 1,
             occurred_at: fromIsoToLocalInput(new Date().toISOString()),
@@ -93,8 +94,8 @@ export function AddSymptomModal({ onClose, open }: AddSymptomModalProps) {
                             return (
                                 <button
                                     className={`flex-1 rounded-xl border py-2 text-xs font-medium transition-colors ${isSelected
-                                            ? "border-(--color-brand-500) bg-(--color-brand-600) text-white"
-                                            : "border-(--color-border) bg-(--color-surface-alt) text-(--color-text-secondary) hover:border-(--color-brand-500)"
+                                        ? "border-(--color-brand-500) bg-(--color-brand-600) text-white"
+                                        : "border-(--color-border) bg-(--color-surface-alt) text-(--color-text-secondary) hover:border-(--color-brand-500)"
                                         }`}
                                     key={value}
                                     onClick={() => form.setValue("severity", value, { shouldValidate: true })}

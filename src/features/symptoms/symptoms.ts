@@ -1,15 +1,8 @@
 import { apiRequest } from "../../lib/api";
+import type { SymptomEvent } from "../events/events";
 
-export interface SymptomEvent {
-    created_at: string;
-    id: string;
-    notes: string | null;
-    occurred_at: string;
-    severity: number;
-    symptom_code: string;
-    updated_at: string;
-    user_id: string;
-}
+// Re-export for convenience.
+export type { SymptomEvent };
 
 export interface SymptomsResponse {
     data: SymptomEvent[];
@@ -18,6 +11,18 @@ export interface SymptomsResponse {
         limit: number;
         next_cursor: string | null;
     };
+}
+
+// Raw shape returned by the API before the type discriminator is added.
+type RawSymptomEvent = Omit<SymptomEvent, "type">;
+
+function toSymptomEvent(raw: RawSymptomEvent): SymptomEvent {
+    return { ...raw, type: "symptom" };
+}
+
+interface RawSymptomsResponse {
+    data: RawSymptomEvent[];
+    page: SymptomsResponse["page"];
 }
 
 export interface SymptomEventPayload {
@@ -64,18 +69,21 @@ function buildQueryString(filters: SymptomsFilters & { cursor?: string }): strin
 export async function listSymptomEvents(
     filters: SymptomsFilters & { cursor?: string } = {}
 ): Promise<SymptomsResponse> {
-    return apiRequest<SymptomsResponse>(
+    const raw = await apiRequest<RawSymptomsResponse>(
         `/api/v1/internal/symptoms/events${buildQueryString(filters)}`
     );
+    return { ...raw, data: raw.data.map(toSymptomEvent) };
 }
 
 export async function getSymptomEvent(symptomEventId: string): Promise<SymptomEvent> {
-    return apiRequest<SymptomEvent>(`/api/v1/internal/symptoms/events/${symptomEventId}`);
+    const raw = await apiRequest<RawSymptomEvent>(`/api/v1/internal/symptoms/events/${symptomEventId}`);
+    return toSymptomEvent(raw);
 }
 
 export async function createSymptomEvent(payload: SymptomEventPayload): Promise<SymptomEvent> {
-    return apiRequest<SymptomEvent>("/api/v1/internal/symptoms/events", {
+    const raw = await apiRequest<RawSymptomEvent>("/api/v1/internal/symptoms/events", {
         method: "POST",
         body: payload
     });
+    return toSymptomEvent(raw);
 }
