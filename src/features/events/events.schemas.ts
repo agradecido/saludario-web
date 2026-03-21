@@ -5,8 +5,8 @@ import { symptomEventFormSchema } from "../symptoms/symptoms.schemas";
 
 // Combined discriminated union schema covering all event form types.
 export const appEventFormSchema = z.discriminatedUnion("type", [
-  foodEventFormSchema,
-  symptomEventFormSchema
+    foodEventFormSchema,
+    symptomEventFormSchema
 ]);
 
 export type AppEventFormValues = z.infer<typeof appEventFormSchema>;
