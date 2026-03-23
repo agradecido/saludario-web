@@ -1,10 +1,11 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { getProblemMessage } from "../../lib/api";
 import { listEntries } from "../entries/entries";
 import type { FoodEvent, SymptomEvent } from "../events/events";
 import { listSymptomEvents } from "../symptoms/symptoms";
+import { EditEntryModal } from "./EditEntryModal";
 
 const PAGE_LIMIT = 50;
 
@@ -66,9 +67,13 @@ function severityLabel(severity: number): string {
     return labels[severity] ?? String(severity);
 }
 
-function FoodCard({ food }: { food: FoodEvent }) {
+function FoodCard({ food, onClick }: { food: FoodEvent; onClick: () => void }) {
     return (
-        <article className="rounded-xl border border-(--color-border) bg-(--color-surface) p-3">
+        <button
+            className="w-full rounded-xl border border-(--color-border) bg-(--color-surface) p-3 text-left transition-colors hover:border-(--color-brand-500) hover:bg-(--color-surface-hover)"
+            onClick={onClick}
+            type="button"
+        >
             <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                     <span className="block text-xs font-semibold tracking-wide text-(--color-brand-600) uppercase">
@@ -85,7 +90,7 @@ function FoodCard({ food }: { food: FoodEvent }) {
                     {food.notes}
                 </p>
             ) : null}
-        </article>
+        </button>
     );
 }
 
@@ -113,6 +118,8 @@ function SymptomCard({ symptom }: { symptom: SymptomEvent }) {
 }
 
 export function HistoryPage() {
+    const [selectedFood, setSelectedFood] = useState<FoodEvent | null>(null);
+
     const foodQuery = useInfiniteQuery({
         queryKey: ["history", "foods"],
         queryFn: ({ pageParam }) =>
@@ -208,7 +215,11 @@ export function HistoryPage() {
                                     <div className="grid grid-cols-2 items-start gap-4">
                                         <div className="space-y-3">
                                             {group.foods.map((food) => (
-                                                <FoodCard food={food} key={food.id} />
+                                                <FoodCard
+                                                    food={food}
+                                                    key={food.id}
+                                                    onClick={() => setSelectedFood(food)}
+                                                />
                                             ))}
                                         </div>
                                         <div className="space-y-3">
@@ -234,6 +245,11 @@ export function HistoryPage() {
                     ) : null}
                 </>
             )}
+
+            <EditEntryModal
+                entry={selectedFood}
+                onClose={() => setSelectedFood(null)}
+            />
         </div>
     );
 }
