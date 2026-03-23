@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { Modal } from "../../components/Modal";
@@ -19,19 +19,26 @@ const SEVERITY_LABELS = ["Leve", "Bajo", "Moderado", "Alto", "Severo"] as const;
 export function AddSymptomModal({ onClose, open }: AddSymptomModalProps) {
     const queryClient = useQueryClient();
     const [formError, setFormError] = useState<string | null>(null);
+    const [detailsOpen, setDetailsOpen] = useState(false);
 
     const form = useForm<SymptomFormValues>({
         resolver: zodResolver(symptomFormSchema),
         defaultValues: {
             type: "symptom",
             symptom_code: "",
-            severity: 1,
+            severity: 3,
             occurred_at: fromIsoToLocalInput(new Date().toISOString()),
             notes: ""
         }
     });
 
     const selectedSeverity = form.watch("severity");
+
+    useEffect(() => {
+        if (open) {
+            setDetailsOpen(false);
+        }
+    }, [open]);
 
     const mutation = useMutation({
         mutationFn: async (values: SymptomFormValues) =>
@@ -85,56 +92,77 @@ export function AddSymptomModal({ onClose, open }: AddSymptomModalProps) {
                     />
                 </Field>
 
-                <div className="space-y-1.5">
-                    <span className="text-sm font-medium text-(--color-text-secondary)">Intensidad</span>
-                    <div className="flex gap-2">
-                        {SEVERITY_LABELS.map((label, index) => {
-                            const value = index + 1;
-                            const isSelected = Number(selectedSeverity) === value;
-                            return (
-                                <button
-                                    className={`flex-1 rounded-xl border py-2 text-xs font-medium transition-colors ${isSelected
-                                        ? "border-(--color-brand-500) bg-(--color-brand-600) text-white"
-                                        : "border-(--color-border) bg-(--color-surface-alt) text-(--color-text-secondary) hover:border-(--color-brand-500)"
-                                        }`}
-                                    key={value}
-                                    onClick={() => form.setValue("severity", value, { shouldValidate: true })}
-                                    type="button"
-                                >
-                                    {label}
-                                </button>
-                            );
-                        })}
+                <button
+                    className="flex items-center gap-1.5 text-xs font-medium text-(--color-text-tertiary) transition-colors hover:text-(--color-text-secondary)"
+                    onClick={() => setDetailsOpen(!detailsOpen)}
+                    type="button"
+                >
+                    <svg
+                        className={`size-3.5 transition-transform ${detailsOpen ? "rotate-180" : ""}`}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                    >
+                        <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    {detailsOpen ? "Ocultar detalles" : "Más detalles"}
+                </button>
+
+                {detailsOpen ? (
+                    <div className="space-y-4">
+                        <div className="space-y-1.5">
+                            <span className="text-sm font-medium text-(--color-text-secondary)">Intensidad</span>
+                            <div className="flex gap-2">
+                                {SEVERITY_LABELS.map((label, index) => {
+                                    const value = index + 1;
+                                    const isSelected = Number(selectedSeverity) === value;
+                                    return (
+                                        <button
+                                            className={`flex-1 rounded-xl border py-2 text-xs font-medium transition-colors ${isSelected
+                                                ? "border-(--color-brand-500) bg-(--color-brand-600) text-white"
+                                                : "border-(--color-border) bg-(--color-surface-alt) text-(--color-text-secondary) hover:border-(--color-brand-500)"
+                                                }`}
+                                            key={value}
+                                            onClick={() => form.setValue("severity", value, { shouldValidate: true })}
+                                            type="button"
+                                        >
+                                            {label}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            {form.formState.errors.severity?.message ? (
+                                <span className="text-xs text-(--color-error)">
+                                    {form.formState.errors.severity.message}
+                                </span>
+                            ) : null}
+                        </div>
+
+                        <Field
+                            error={form.formState.errors.occurred_at?.message}
+                            label="¿Cuándo?"
+                        >
+                            <input
+                                className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) focus:border-(--color-brand-500) focus:outline-none"
+                                type="datetime-local"
+                                {...form.register("occurred_at")}
+                            />
+                        </Field>
+
+                        <Field
+                            error={form.formState.errors.notes?.message}
+                            label="Notas"
+                        >
+                            <textarea
+                                className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) placeholder:text-(--color-text-tertiary) focus:border-(--color-brand-500) focus:outline-none"
+                                placeholder="Después de comer, al levantarme..."
+                                rows={2}
+                                {...form.register("notes")}
+                            />
+                        </Field>
                     </div>
-                    {form.formState.errors.severity?.message ? (
-                        <span className="text-xs text-(--color-error)">
-                            {form.formState.errors.severity.message}
-                        </span>
-                    ) : null}
-                </div>
-
-                <Field
-                    error={form.formState.errors.occurred_at?.message}
-                    label="¿Cuándo?"
-                >
-                    <input
-                        className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) focus:border-(--color-brand-500) focus:outline-none"
-                        type="datetime-local"
-                        {...form.register("occurred_at")}
-                    />
-                </Field>
-
-                <Field
-                    error={form.formState.errors.notes?.message}
-                    label="Notas"
-                >
-                    <textarea
-                        className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) placeholder:text-(--color-text-tertiary) focus:border-(--color-brand-500) focus:outline-none"
-                        placeholder="Después de comer, al levantarme..."
-                        rows={2}
-                        {...form.register("notes")}
-                    />
-                </Field>
+                ) : null}
 
                 {formError ? (
                     <p className="rounded-xl bg-(--color-error-bg) px-3.5 py-2.5 text-sm text-(--color-error)">

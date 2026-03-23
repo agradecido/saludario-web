@@ -51,6 +51,7 @@ function mergeLocalDateTime(date: string, time: string): string {
 export function AddEntryModal({ initialCategory, onClose, open }: AddEntryModalProps) {
     const queryClient = useQueryClient();
     const [formError, setFormError] = useState<string | null>(null);
+    const [detailsOpen, setDetailsOpen] = useState(false);
 
     const categoriesQuery = useQuery(categoriesQueryOptions());
     const categories = categoriesQuery.data?.data ?? fallbackCategories;
@@ -86,6 +87,7 @@ export function AddEntryModal({ initialCategory, onClose, open }: AddEntryModalP
     useEffect(() => {
         if (open) {
             form.setValue("meal_category_code", initialCategory ?? "snack");
+            setDetailsOpen(false);
         }
     }, [open, initialCategory, form]);
 
@@ -175,116 +177,137 @@ export function AddEntryModal({ initialCategory, onClose, open }: AddEntryModalP
                     </datalist>
                 </Field>
 
-                <Field
-                    error={form.formState.errors.meal_category_code?.message}
-                    label="Categoría"
+                <button
+                    className="flex items-center gap-1.5 text-xs font-medium text-(--color-text-tertiary) transition-colors hover:text-(--color-text-secondary)"
+                    onClick={() => setDetailsOpen(!detailsOpen)}
+                    type="button"
                 >
-                    <select
-                        className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) focus:border-(--color-brand-500) focus:outline-none"
-                        {...form.register("meal_category_code")}
+                    <svg
+                        className={`size-3.5 transition-transform ${detailsOpen ? "rotate-180" : ""}`}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
                     >
-                        <option value="">Seleccionar</option>
-                        {categories.map((c) => (
-                            <option
-                                key={c.code}
-                                value={c.code}
+                        <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    {detailsOpen ? "Ocultar detalles" : "Más detalles"}
+                </button>
+
+                {detailsOpen ? (
+                    <div className="space-y-4">
+                        <Field
+                            error={form.formState.errors.meal_category_code?.message}
+                            label="Categoría"
+                        >
+                            <select
+                                className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) focus:border-(--color-brand-500) focus:outline-none"
+                                {...form.register("meal_category_code")}
                             >
-                                {c.label}
-                            </option>
-                        ))}
-                    </select>
-                </Field>
-
-                <div className="grid grid-cols-2 gap-3">
-                    <Field
-                        error={form.formState.errors.quantity_value?.message}
-                        label="Cantidad"
-                    >
-                        <input
-                            className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) placeholder:text-(--color-text-tertiary) focus:border-(--color-brand-500) focus:outline-none"
-                            min="0"
-                            placeholder="200"
-                            step="0.1"
-                            type="number"
-                            {...form.register("quantity_value")}
-                        />
-                    </Field>
-
-                    <Field
-                        error={form.formState.errors.quantity_unit?.message}
-                        label="Unidad"
-                    >
-                        <input
-                            className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) placeholder:text-(--color-text-tertiary) focus:border-(--color-brand-500) focus:outline-none"
-                            placeholder="ml, g..."
-                            type="text"
-                            {...form.register("quantity_unit")}
-                        />
-                    </Field>
-                </div>
-
-                <Field
-                    error={form.formState.errors.consumed_at?.message}
-                    label="¿Cuándo?"
-                >
-                    <div className="space-y-3">
-                        <div className="flex flex-wrap gap-2">
-                            {QUICK_CONSUMED_AT_PRESETS.map((preset) => (
-                                <button
-                                    className="cursor-pointer rounded-full border border-(--color-border) bg-(--color-surface) px-3 py-1.5 text-xs font-medium text-(--color-text-secondary) transition-colors hover:border-(--color-brand-500) hover:text-(--color-brand-600)"
-                                    key={preset.label}
-                                    onClick={() => form.setValue("consumed_at", fromIsoToLocalInput(preset.getValue().toISOString()), { shouldDirty: true, shouldValidate: true })}
-                                    type="button"
-                                >
-                                    {preset.label}
-                                </button>
-                            ))}
-                        </div>
+                                <option value="">Seleccionar</option>
+                                {categories.map((c) => (
+                                    <option
+                                        key={c.code}
+                                        value={c.code}
+                                    >
+                                        {c.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </Field>
 
                         <div className="grid grid-cols-2 gap-3">
-                            <input
-                                className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) focus:border-(--color-brand-500) focus:outline-none"
-                                type="date"
-                                value={consumedDate}
-                                onChange={(event) =>
-                                    form.setValue(
-                                        "consumed_at",
-                                        mergeLocalDateTime(event.target.value, consumedTime),
-                                        { shouldDirty: true, shouldValidate: true }
-                                    )}
-                            />
-                            <input
-                                className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) focus:border-(--color-brand-500) focus:outline-none"
-                                step="300"
-                                type="time"
-                                value={consumedTime}
-                                onChange={(event) =>
-                                    form.setValue(
-                                        "consumed_at",
-                                        mergeLocalDateTime(consumedDate, event.target.value),
-                                        { shouldDirty: true, shouldValidate: true }
-                                    )}
-                            />
+                            <Field
+                                error={form.formState.errors.quantity_value?.message}
+                                label="Cantidad"
+                            >
+                                <input
+                                    className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) placeholder:text-(--color-text-tertiary) focus:border-(--color-brand-500) focus:outline-none"
+                                    min="0"
+                                    placeholder="200"
+                                    step="0.1"
+                                    type="number"
+                                    {...form.register("quantity_value")}
+                                />
+                            </Field>
+
+                            <Field
+                                error={form.formState.errors.quantity_unit?.message}
+                                label="Unidad"
+                            >
+                                <input
+                                    className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) placeholder:text-(--color-text-tertiary) focus:border-(--color-brand-500) focus:outline-none"
+                                    placeholder="ml, g..."
+                                    type="text"
+                                    {...form.register("quantity_unit")}
+                                />
+                            </Field>
                         </div>
 
-                        <input
-                            type="hidden"
-                            {...form.register("consumed_at")}
-                        />
-                    </div>
-                </Field>
+                        <Field
+                            error={form.formState.errors.consumed_at?.message}
+                            label="¿Cuándo?"
+                        >
+                            <div className="space-y-3">
+                                <div className="flex flex-wrap gap-2">
+                                    {QUICK_CONSUMED_AT_PRESETS.map((preset) => (
+                                        <button
+                                            className="cursor-pointer rounded-full border border-(--color-border) bg-(--color-surface) px-3 py-1.5 text-xs font-medium text-(--color-text-secondary) transition-colors hover:border-(--color-brand-500) hover:text-(--color-brand-600)"
+                                            key={preset.label}
+                                            onClick={() => form.setValue("consumed_at", fromIsoToLocalInput(preset.getValue().toISOString()), { shouldDirty: true, shouldValidate: true })}
+                                            type="button"
+                                        >
+                                            {preset.label}
+                                        </button>
+                                    ))}
+                                </div>
 
-                <Field
-                    error={form.formState.errors.notes?.message}
-                    label="Notas"
-                >
-                    <textarea
-                        className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) placeholder:text-(--color-text-tertiary) focus:border-(--color-brand-500) focus:outline-none"
-                        placeholder="Casero, restaurante, contexto..."
-                        rows={2}
-                        {...form.register("notes")}
-                    />
-                </Field>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <input
+                                        className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) focus:border-(--color-brand-500) focus:outline-none"
+                                        type="date"
+                                        value={consumedDate}
+                                        onChange={(event) =>
+                                            form.setValue(
+                                                "consumed_at",
+                                                mergeLocalDateTime(event.target.value, consumedTime),
+                                                { shouldDirty: true, shouldValidate: true }
+                                            )}
+                                    />
+                                    <input
+                                        className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) focus:border-(--color-brand-500) focus:outline-none"
+                                        step="300"
+                                        type="time"
+                                        value={consumedTime}
+                                        onChange={(event) =>
+                                            form.setValue(
+                                                "consumed_at",
+                                                mergeLocalDateTime(consumedDate, event.target.value),
+                                                { shouldDirty: true, shouldValidate: true }
+                                            )}
+                                    />
+                                </div>
+
+                                <input
+                                    type="hidden"
+                                    {...form.register("consumed_at")}
+                                />
+                            </div>
+                        </Field>
+
+                        <Field
+                            error={form.formState.errors.notes?.message}
+                            label="Notas"
+                        >
+                            <textarea
+                                className="w-full rounded-xl border border-(--color-border) bg-(--color-surface-alt) px-3.5 py-2.5 text-sm text-(--color-text) placeholder:text-(--color-text-tertiary) focus:border-(--color-brand-500) focus:outline-none"
+                                placeholder="Casero, restaurante, contexto..."
+                                rows={2}
+                                {...form.register("notes")}
+                            />
+                        </Field>
+                    </div>
+                ) : null}
 
                 {formError ? (
                     <p className="rounded-xl bg-(--color-error-bg) px-3.5 py-2.5 text-sm text-(--color-error)">
