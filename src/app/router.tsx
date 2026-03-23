@@ -20,6 +20,7 @@ import {
 } from "../features/auth/auth";
 import { EntryIngredientsPage } from "../features/entries/EntryIngredientsPage";
 import { EntriesPage } from "../features/entries/EntriesPage";
+import { HistoryPage } from "../features/history/HistoryPage";
 
 function AuthenticatedLayout() {
   const sessionData = useLoaderData() as SessionResponse;
@@ -42,10 +43,9 @@ function AuthenticatedLayout() {
         <nav className="flex items-center gap-1">
           <NavLink
             className={({ isActive }) =>
-              `rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-(--color-brand-600) text-white"
-                  : "text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-surface-hover)"
+              `rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${isActive
+                ? "bg-(--color-brand-600) text-white"
+                : "text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-surface-hover)"
               }`
             }
             to="/"
@@ -55,13 +55,12 @@ function AuthenticatedLayout() {
           </NavLink>
           <NavLink
             className={({ isActive }) =>
-              `rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-(--color-brand-600) text-white"
-                  : "text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-surface-hover)"
+              `rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${isActive
+                ? "bg-(--color-brand-600) text-white"
+                : "text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-surface-hover)"
               }`
             }
-            to="/entries"
+            to="/historial"
           >
             Historial
           </NavLink>
@@ -142,6 +141,10 @@ export const router = createBrowserRouter([
           {
             path: "entries",
             element: <EntriesPage />
+          },
+          {
+            path: "historial",
+            element: <HistoryPage />
           },
           {
             path: "entries/:entryId/edit",
